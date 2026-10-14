@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>한입레시피</title>
+<style>
+  :root { --bg:#fffaf5; --card:#fff; --ink:#222; --sub:#777; --line:#eee; --point:#ff6b35; }
+  * { box-sizing:border-box; } [hidden] { display:none !important; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "Pretendard","Malgun Gothic",system-ui,sans-serif; }
+  .wrap { max-width:760px; margin:0 auto; padding:24px 16px 80px; }
+  h1 { font-size:24px; margin:0 0 16px; } h1 a { color:inherit; text-decoration:none; }
+  form { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+  input { flex:1; min-width:0; padding:12px 14px; border:1px solid #ddd; border-radius:10px; font:inherit; }
+  button { padding:12px 18px; border:0; border-radius:10px; background:var(--point); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:wait; }
+  .msg { margin:-12px 0 20px; color:var(--sub); } .msg.err { color:#d33; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+  .card { background:var(--card); border-radius:12px; overflow:hidden; text-decoration:none; color:inherit; box-shadow:0 1px 4px #0001; }
+  .card img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; }
+  .card div { padding:10px 12px; } .card b { display:block; } .card small { color:var(--sub); }
+  .video { position:relative; aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:#000; }
+  .video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .box { background:var(--card); border-radius:12px; padding:16px; margin-top:14px; box-shadow:0 1px 4px #0001; }
+  .box h3 { margin:0 0 10px; font-size:17px; }
+  .meta { display:flex; gap:8px; flex-wrap:wrap; } .meta span { background:#fff1e9; padding:4px 10px; border-radius:20px; font-size:13px; }
+  .row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--line); gap:8px; }
+  .row:last-child { border:0; } .row em { color:var(--sub); font-style:normal; white-space:nowrap; }
+  .serv { display:flex; align-items:center; gap:10px; } .serv button { padding:4px 12px; }
+  .total { font-size:18px; font-weight:700; color:var(--point); }
+  .step { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); } .step:last-child { border:0; }
+  .step .n { flex:none; width:28px; height:28px; border-radius:50%; background:var(--point); color:#fff; display:grid; place-items:center; font-weight:700; }
+  .step .t { background:none; color:var(--point); padding:0; font-size:13px; font-weight:600; }
+  .chips span { display:inline-block; font-size:12px; background:#f3f3f3; border-radius:6px; padding:1px 7px; margin:2px 4px 0 0; }
+  nav { display:flex; gap:8px; margin:-6px 0 16px; } nav a { padding:6px 14px; border-radius:20px; background:#fff; color:var(--ink); text-decoration:none; font-weight:600; box-shadow:0 1px 3px #0001; }
+  nav a.on { background:var(--point); color:#fff; }
+  .buy { margin-left:8px; font-size:12px; color:#fff; background:#e52528; padding:2px 8px; border-radius:6px; text-decoration:none; white-space:nowrap; }
+  input[type=checkbox] { flex:none; width:auto; }
+  .have { color:#2a9d4b; } .miss { color:#d33; } label { display:flex; gap:6px; align-items:center; color:var(--sub); font-size:14px; }
+  .note { color:var(--sub); font-size:12px; margin-top:6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><a href="#/">🍳 한입레시피</a></h1>
+  <nav><a href="#/" id="n-home">레시피</a><a href="#/find" id="n-find">재료로 찾기</a><a href="#/settings" id="n-set" style="margin-left:auto">⚙ 설정</a></nav>
+  <form id="f"><input id="u" placeholder="유튜브 요리 영상 링크를 붙여 넣으세요" required><button id="b">레시피 만들기</button></form>
+  <p id="msg" class="msg" hidden></p>
+  <main id="view"></main>
+</div>
+<script>
+// 공개 사이트(build.mjs가 STATIC=true로 만듦)는 저장된 JSON만 읽는 보기 전용
+const STATIC = true;
+const LIST_URL = STATIC ? 'recipes.json' : '/api/recipes';
+const ONE_URL = (id) => STATIC ? `r/${id}.json` : '/api/recipes/' + id;
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const won = (n) => Math.round(n).toLocaleString('ko-KR') + '원';
+const views = (n) => n == null ? '' : n >= 1e8 ? (n/1e8).toFixed(1)+'억회' : n >= 1e4 ? (n/1e4).toFixed(1)+'만회' : n+'회';
+const mmss = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+const fmtQty = (q) => q == null ? '' : +(+q).toFixed(1);
+
+function say(text, err) { const m = $('#msg'); m.hidden = !text; m.textContent = text || ''; m.className = 'msg' + (err ? ' err' : ''); }
+
+$('#f').onsubmit = async (e) => {
+  e.preventDefault();
+  $('#b').disabled = true; say('영상 자막을 읽고 레시피를 정리하는 중이에요… (1~2분)');
+  try {
+    const r = await fetch('/api/recipes', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ url: $('#u').value }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    say(''); $('#u').value = ''; location.hash = '#/r/' + d.id;
+  } catch (err) { say(err.message, true); }
+  $('#b').disabled = false;
+};
+
+async function home() {
+  const list = await (await fetch(LIST_URL)).json();
+  $('#view').innerHTML = list.length ? `<div class="grid">${list.map((r) => `
+    <a class="card" href="#/r/${r.id}"><img src="${esc(r.thumbnail)}" alt=""><div>
+      <b>${esc(r.title)}</b><small>${esc(r.channel)} · ${views(r.views)}${r.cook_minutes ? ' · ' + r.cook_minutes + '분' : ''}</small>
+    </div></a>`).join('')}</div>` : '<p class="msg">아직 레시피가 없어요. 위에 유튜브 링크를 넣어 보세요.</p>';
+}
+
+const BASIC = '소금 후추 설탕 간장 진간장 국간장 식용유 참기름 들기름 다진마늘 마늘 고춧가루 고추장 된장 식초 물 깨 통깨 미림 맛술 올리고당 물엿 굴소스'.split(' ');
+const norm = (s) => s.replace(/\(.*?\)/g, '').replace(/\s/g, '');
+async function find() {
+  const saved = (() => { try { return JSON.parse(localStorage.getItem('find') || '{}'); } catch { return {}; } })();
+  $('#view').innerHTML = `<div class="box" style="margin-top:0"><h3>냉장고에 있는 재료</h3>
+    <form id="ff"><input id="fi" placeholder="예: 돼지고기, 양파, 두부" value="${esc(saved.q || '')}"><button>찾기</button></form>
+    <label><input type="checkbox" id="fb" ${saved.basic === false ? '' : 'checked'}> 소금·간장·고춧가루 같은 기본 양념은 있어요</label></div><div id="fr"></div>`;
+  const list = await (await fetch(LIST_URL)).json();
+  const show = () => {
+    const terms = $('#fi').value.split(/[,\s]+/).map(norm).filter(Boolean);
+    const basic = $('#fb').checked;
+    try { localStorage.setItem('find', JSON.stringify({ q: $('#fi').value, basic })); } catch {}
+    if (!terms.length) { $('#fr').innerHTML = '<p class="msg" style="margin-top:16px">가진 재료를 쉼표로 넣어 보세요.</p>'; return; }
+    const owned = (name) => { const n = norm(name); return (basic && BASIC.some((b) => n === b || n.endsWith(b))) || terms.some((t) => n.includes(t) || t.includes(n)); };
+    const ranked = list.map((r) => {
+      const have = r.ingredients.filter(owned), miss = r.ingredients.filter((n) => !owned(n));
+      return { ...r, have, miss, score: have.length / (r.ingredients.length || 1) };
+    }).filter((r) => r.have.some((n) => terms.some((t) => norm(n).includes(t) || t.includes(norm(n)))))
+      .sort((a, b) => b.score - a.score || a.miss.length - b.miss.length);
+    $('#fr').innerHTML = ranked.length ? ranked.map((r) => `
+      <a class="box card" href="#/r/${r.id}" style="display:flex;gap:12px;padding:12px">
+        <img src="${esc(r.thumbnail)}" alt="" style="width:120px;border-radius:8px;flex:none">
+        <div style="padding:0"><b>${esc(r.title)}</b>
+          <small class="have">있는 재료 ${r.have.length}/${r.ingredients.length} (${Math.round(r.score * 100)}%)</small>
+          ${r.miss.length ? `<small class="miss" style="display:block">더 필요해요: ${r.miss.map(esc).join(', ')}</small>` : '<small class="have" style="display:block">지금 바로 만들 수 있어요!</small>'}
+        </div></a>`).join('') : '<p class="msg" style="margin-top:16px">맞는 레시피가 아직 없어요. 레시피를 더 모아 보세요.</p>';
+  };
+  $('#ff').onsubmit = (e) => { e.preventDefault(); show(); };
+  $('#fb').onchange = show;
+  show();
+}
+
+async function settings() {
+  const st = await (await fetch('/api/settings')).json();
+  $('#view').innerHTML = `<div class="box" style="margin-top:0"><h3>쿠팡 파트너스 열쇠</h3>
+    <p class="note" style="margin:0 0 12px">쿠팡 파트너스 → 추가기능 → 파트너스 API에서 받은 두 값을 넣으세요. 이 컴퓨터의 .env 파일에만 저장됩니다.</p>
+    <p style="margin:0 0 12px">현재 상태: <b class="${st.coupang ? 'have' : 'miss'}">${st.coupang ? '연결됨 (수수료 링크 사용 중)' : '연결 안 됨 (일반 링크)'}</b></p>
+    <form id="sf" style="flex-direction:column;margin:0">
+      <input id="sa" placeholder="Access Key" autocomplete="off" spellcheck="false">
+      <input id="ss" type="password" placeholder="Secret Key" autocomplete="off">
+      <button>저장하고 시험하기</button>
+    </form><p id="sm" class="msg" style="margin:10px 0 0"></p></div>`;
+  $('#sf').onsubmit = async (e) => {
+    e.preventDefault();
+    $('#sm').className = 'msg'; $('#sm').textContent = '쿠팡에 시험 요청 중…';
+    const r = await fetch('/api/settings', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ access: $('#sa').value, secret: $('#ss').value }) });
+    const d = await r.json();
+    $('#sa').value = $('#ss').value = '';
+    if (r.ok) { $('#sm').className = 'msg have'; $('#sm').textContent = '✅ 연결됐어요. 이제 재료의 쿠팡 버튼이 수수료 링크로 바뀝니다.'; }
+    else { $('#sm').className = 'msg err'; $('#sm').textContent = d.error; }
+  };
+}
+
+async function detail(id) {
+  const r = await fetch(ONE_URL(id));
+  if (!r.ok) { $('#view').innerHTML = '<p class="msg err">레시피를 찾을 수 없어요.</p>'; return; }
+  const { video, recipe: x, coupang_affiliate: aff } = await r.json();
+  let serv = x.servings || 1;
+  const play = (s) => { $('#yt').src = `https://www.youtube.com/embed/${id}?start=${s}&autoplay=1`; $('#yt').scrollIntoView({ behavior:'smooth', block:'center' }); };
+  const ingr = () => {
+    const k = serv / (x.servings || 1);
+    const total = x.ingredients.reduce((a, i) => a + (i.price_krw || 0) * k, 0);
+    return `<div class="serv"><button data-d="-1">−</button><b>${serv}인분</b><button data-d="1">+</button>
+      <span style="margin-left:auto">약 <span class="total">${won(total)}</span></span></div>
+      ${x.ingredients.map((i) => `<div class="row"><span>${esc(i.name)}</span><em>${i.qty == null ? esc(i.unit || '적당량') : fmtQty(i.qty * k) + esc(i.unit || '')}${i.price_krw ? ' · ' + won(i.price_krw * k) : ''}<a class="buy" href="${esc(i.coupang_url)}" target="_blank" rel="noopener sponsored">쿠팡</a></em></div>`).join('')}
+      <p class="note">가격은 AI가 추정한 마트 기준 대략값이에요.</p>
+      ${aff ? '<p class="note">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>' : ''}`;
+  };
+  $('#view').innerHTML = `
+    <div class="video"><iframe id="yt" src="https://www.youtube.com/embed/${id}" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
+    <h2 style="margin:14px 0 4px">${esc(x.title)}</h2>
+    <p style="margin:0 0 10px;color:var(--sub)">${esc(video.channel)} · ${views(video.views)} — ${esc(x.summary)}</p>
+    <div class="meta">${x.cook_minutes ? `<span>⏱ ${x.cook_minutes}분</span>` : ''}${(x.tools||[]).map((t) => `<span>🍳 ${esc(t)}</span>`).join('')}${(x.tags||[]).map((t) => `<span>#${esc(t)}</span>`).join('')}</div>
+    <div class="box"><h3>재료</h3><div id="ingr">${ingr()}</div></div>
+    <div class="box"><h3>만드는 법</h3>${x.steps.map((s, i) => `<div class="step"><div class="n">${i+1}</div><div>
+      ${s.start_sec != null ? `<button class="t" data-s="${s.start_sec}">▶ ${mmss(s.start_sec)}</button>` : ''}
+      <div>${esc(s.text)}</div><div class="chips">${(s.ingredients||[]).map((n) => `<span>${esc(n)}</span>`).join('')}</div></div></div>`).join('')}</div>
+    ${x.tips?.length ? `<div class="box"><h3>요리 팁</h3>${x.tips.map((t) => `<div class="row"><span>💡 ${esc(t)}</span></div>`).join('')}</div>` : ''}
+    ${x.nutrition_per_serving ? `<div class="box"><h3>영양성분 <small style="color:var(--sub);font-weight:400">1인분 · 추정</small></h3><div class="meta">
+      <span>${x.nutrition_per_serving.kcal}kcal</span><span>단백질 ${x.nutrition_per_serving.protein_g}g</span><span>탄수화물 ${x.nutrition_per_serving.carbs_g}g</span><span>지방 ${x.nutrition_per_serving.fat_g}g</span></div></div>` : ''}
+    <p class="note">영상은 유튜브 공식 플레이어로 재생돼요.</p>`;
+  $('#view').onclick = (e) => {
+    const d = e.target.dataset;
+    if (d.d) { serv = Math.max(1, serv + +d.d); $('#ingr').innerHTML = ingr(); }
+    if (d.s) play(+d.s);
+  };
+}
+
+const route = () => {
+  const m = location.hash.match(/^#\/r\/([\w-]{11})/), isFind = location.hash === '#/find', isSet = location.hash === '#/settings';
+  $('#n-home').className = !m && !isFind && !isSet ? 'on' : ''; $('#n-set').className = isSet ? 'on' : ''; $('#n-find').className = isFind ? 'on' : '';
+  $('#f').hidden = STATIC || isFind || isSet; $('#n-set').hidden = STATIC;
+  (m ? detail(m[1]) : isFind ? find() : isSet ? settings() : home()).catch((e) => say(e.message, true)); scrollTo(0, 0);
+};
+addEventListener('hashchange', route); route();
+</script>
+</body>
+</html>
