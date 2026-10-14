@@ -3,51 +3,105 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>한입레시피</title>
+<title>한입레시피 - 유튜브 요리 영상을 레시피로</title>
+<meta name="description" content="유튜브 인기 요리 영상을 재료·순서·가격까지 정리한 레시피로. 냉장고 재료로 찾고, 장보기까지 한 번에.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-  :root { --bg:#fffaf5; --card:#fff; --ink:#222; --sub:#777; --line:#eee; --point:#ff6b35; }
+  :root { --bg:#fff; --soft:#f7f7f8; --card:#fff; --ink:#1a1a1a; --sub:#8a8a8e; --line:#efeff1; --point:#ff5a1f; --point-soft:#fff2ec; }
   * { box-sizing:border-box; } [hidden] { display:none !important; }
-  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "Pretendard","Malgun Gothic",system-ui,sans-serif; }
-  .wrap { max-width:760px; margin:0 auto; padding:24px 16px 80px; }
-  h1 { font-size:24px; margin:0 0 16px; } h1 a { color:inherit; text-decoration:none; }
-  form { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
-  input { flex:1; min-width:0; padding:12px 14px; border:1px solid #ddd; border-radius:10px; font:inherit; }
-  button { padding:12px 18px; border:0; border-radius:10px; background:var(--point); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 "Pretendard Variable","Pretendard","Malgun Gothic",system-ui,sans-serif; letter-spacing:-0.01em; -webkit-font-smoothing:antialiased; }
+  a { color:inherit; }
+  /* 상단 바 */
+  .top { position:sticky; top:0; z-index:20; background:rgba(255,255,255,.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  .top .in { max-width:1120px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; gap:20px; }
+  .logo { font-size:21px; font-weight:800; text-decoration:none; color:var(--point); white-space:nowrap; letter-spacing:-0.03em; }
+  .search { flex:1; max-width:460px; display:flex; margin:0; background:var(--soft); border-radius:999px; padding:2px 4px 2px 16px; }
+  .search input { border:0; background:none; padding:9px 0; }
+  .search input:focus { outline:none; }
+  .search button { background:none; color:var(--ink); padding:6px 10px; font-size:16px; }
+  nav { display:flex; gap:4px; margin-left:auto; }
+  nav a { padding:8px 14px; border-radius:999px; text-decoration:none; font-weight:600; color:#555; font-size:14px; }
+  nav a:hover { background:var(--soft); } nav a.on { color:var(--point); background:var(--point-soft); }
+  .wrap { max-width:1120px; margin:0 auto; padding:20px 20px 100px; }
+  #view.narrow { max-width:760px; margin:0 auto; }
+  form { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+  input { flex:1; min-width:0; padding:12px 14px; border:1px solid #e3e3e6; border-radius:12px; font:inherit; background:#fff; }
+  button { padding:12px 18px; border:0; border-radius:12px; background:var(--point); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
   button:disabled { opacity:.5; cursor:wait; }
-  .msg { margin:-12px 0 20px; color:var(--sub); } .msg.err { color:#d33; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
-  .card { background:var(--card); border-radius:12px; overflow:hidden; text-decoration:none; color:inherit; box-shadow:0 1px 4px #0001; }
-  .card img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; }
-  .card div { padding:10px 12px; } .card b { display:block; } .card small { color:var(--sub); }
-  .video { position:relative; aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:#000; }
+  .msg { margin:0 0 20px; color:var(--sub); } .msg.err { color:#e03131; }
+  /* 배너 */
+  .banner { position:relative; height:200px; border-radius:20px; overflow:hidden; margin-bottom:22px; }
+  .slide { position:absolute; inset:0; padding:34px 40px; color:#fff; text-decoration:none; display:flex; flex-direction:column; justify-content:center; gap:4px; opacity:0; transition:opacity .6s; }
+  .slide.on { opacity:1; z-index:1; }
+  .slide::after { content:attr(data-emoji); position:absolute; right:40px; bottom:-10px; font-size:150px; opacity:.9; filter:drop-shadow(0 8px 20px #0003); }
+  .slide span { font-size:13px; font-weight:700; opacity:.9; } .slide b { font-size:28px; letter-spacing:-0.03em; } .slide small { font-size:15px; opacity:.9; }
+  .dots { position:absolute; left:40px; bottom:18px; z-index:2; display:flex; gap:6px; }
+  .dots i { width:6px; height:6px; border-radius:3px; background:#fff8; transition:width .3s; } .dots i.on { width:18px; background:#fff; }
+  /* 카테고리 */
+  .cats { display:grid; grid-template-columns:repeat(10,1fr); gap:8px; margin-bottom:12px; }
+  .cats a { display:flex; flex-direction:column; align-items:center; gap:6px; text-decoration:none; font-size:13px; font-weight:600; color:#444; }
+  .cats span { width:56px; height:56px; border-radius:18px; background:var(--soft); display:grid; place-items:center; font-size:26px; transition:transform .15s; }
+  .cats a:hover span { transform:translateY(-3px); background:var(--point-soft); }
+  /* 섹션과 카드 */
+  .sec { margin-top:34px; }
+  .sh { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; gap:10px; }
+  .sh h3 { margin:0; font-size:20px; letter-spacing:-0.03em; }
+  .sh a { color:var(--sub); text-decoration:none; font-size:14px; white-space:nowrap; }
+  .hs { display:grid; grid-auto-flow:column; grid-auto-columns:calc((100% - 48px) / 5); gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:6px; scrollbar-width:none; }
+  .hs::-webkit-scrollbar { display:none; }
+  .grid2 { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:20px 12px; }
+  .rc { text-decoration:none; scroll-snap-align:start; min-width:0; display:flex; flex-direction:column; }
+  .rc .th { position:relative; aspect-ratio:1/1; border-radius:14px; overflow:hidden; background:var(--soft); margin-bottom:8px; }
+  .rc img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .3s; }
+  .rc:hover img { transform:scale(1.05); }
+  .badge { position:absolute; left:8px; bottom:8px; background:rgba(0,0,0,.65); color:#fff; font-size:12px; font-weight:700; padding:3px 8px; border-radius:6px; }
+  .rc b { font-size:15px; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .rc small { color:var(--sub); font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .rc .vw { font-size:12px; }
+  /* 상세 */
+  .video { position:relative; aspect-ratio:16/9; border-radius:16px; overflow:hidden; background:#000; }
   .video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
-  .box { background:var(--card); border-radius:12px; padding:16px; margin-top:14px; box-shadow:0 1px 4px #0001; }
+  .box { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; margin-top:14px; }
   .box h3 { margin:0 0 10px; font-size:17px; }
-  .meta { display:flex; gap:8px; flex-wrap:wrap; } .meta span { background:#fff1e9; padding:4px 10px; border-radius:20px; font-size:13px; }
-  .row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--line); gap:8px; }
+  .meta { display:flex; gap:8px; flex-wrap:wrap; } .meta span { background:var(--soft); padding:4px 10px; border-radius:999px; font-size:13px; }
+  .row { display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); gap:8px; }
   .row:last-child { border:0; } .row em { color:var(--sub); font-style:normal; white-space:nowrap; }
   .serv { display:flex; align-items:center; gap:10px; } .serv button { padding:4px 12px; }
-  .total { font-size:18px; font-weight:700; color:var(--point); }
-  .step { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); } .step:last-child { border:0; }
+  .total { font-size:18px; font-weight:800; color:var(--point); }
+  .step { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--line); } .step:last-child { border:0; }
   .step .n { flex:none; width:28px; height:28px; border-radius:50%; background:var(--point); color:#fff; display:grid; place-items:center; font-weight:700; }
-  .step .t { background:none; color:var(--point); padding:0; font-size:13px; font-weight:600; }
-  .chips span { display:inline-block; font-size:12px; background:#f3f3f3; border-radius:6px; padding:1px 7px; margin:2px 4px 0 0; }
-  nav { display:flex; gap:8px; margin:-6px 0 16px; } nav a { padding:6px 14px; border-radius:20px; background:#fff; color:var(--ink); text-decoration:none; font-weight:600; box-shadow:0 1px 3px #0001; }
-  nav a.on { background:var(--point); color:#fff; }
+  .step .t { background:none; color:var(--point); padding:0; font-size:13px; font-weight:700; }
+  .chips span { display:inline-block; font-size:12px; background:var(--soft); border-radius:6px; padding:1px 7px; margin:2px 4px 0 0; }
   .buy { margin-left:8px; font-size:12px; color:#fff; background:#e52528; padding:2px 8px; border-radius:6px; text-decoration:none; white-space:nowrap; }
   input[type=checkbox] { flex:none; width:auto; }
-  .have { color:#2a9d4b; } .miss { color:#d33; } label { display:flex; gap:6px; align-items:center; color:var(--sub); font-size:14px; }
+  .have { color:#2b8a3e; } .miss { color:#e03131; } label { display:flex; gap:6px; align-items:center; color:var(--sub); font-size:14px; }
   .note { color:var(--sub); font-size:12px; margin-top:6px; }
+  .card { display:flex; text-decoration:none; }
+  footer { border-top:1px solid var(--line); color:var(--sub); font-size:12px; text-align:center; padding:28px 20px 90px; }
+  /* 휴대폰 */
+  @media (max-width:820px) {
+    .top .in { flex-wrap:wrap; gap:10px; padding:10px 16px; } .search { order:3; max-width:none; flex-basis:100%; }
+    nav { position:fixed; left:0; right:0; bottom:0; margin:0; background:#fff; border-top:1px solid var(--line); justify-content:space-around; padding:6px 0 calc(6px + env(safe-area-inset-bottom)); z-index:30; }
+    .wrap { padding:14px 16px 100px; }
+    .banner { height:160px; } .slide { padding:22px; } .slide b { font-size:21px; } .slide::after { font-size:100px; right:14px; } .dots { left:22px; }
+    .cats { grid-template-columns:repeat(5,1fr); row-gap:14px; } .cats span { width:50px; height:50px; font-size:23px; }
+    .hs { grid-auto-columns:42%; }
+    .sh h3 { font-size:18px; }
+  }
 </style>
 </head>
 <body>
+<header class="top"><div class="in">
+  <a class="logo" href="#/">한입레시피</a>
+  <form id="sf2" class="search"><input id="q" placeholder="요리, 재료 검색 (예: 제육볶음, 두부)"><button aria-label="검색">🔍</button></form>
+  <nav><a href="#/" data-nav="home">🏠 홈</a><a href="#/find" data-nav="find">🧊 재료로 찾기</a><a href="#/settings" id="n-set" data-nav="set">⚙ 설정</a></nav>
+</div></header>
 <div class="wrap">
-  <h1><a href="#/">🍳 한입레시피</a></h1>
-  <nav><a href="#/" id="n-home">레시피</a><a href="#/find" id="n-find">재료로 찾기</a><a href="#/settings" id="n-set" style="margin-left:auto">⚙ 설정</a></nav>
   <form id="f"><input id="u" placeholder="유튜브 요리 영상 링크를 붙여 넣으세요" required><button id="b">레시피 만들기</button></form>
   <p id="msg" class="msg" hidden></p>
   <main id="view"></main>
 </div>
+<footer>한입레시피 · 레시피 영상은 유튜브 공식 플레이어로 재생되며 조회수와 수익은 원작자에게 돌아갑니다.<br>
+이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</footer>
 <script>
 // 공개 사이트(build.mjs가 STATIC=true로 만듦)는 저장된 JSON만 읽는 보기 전용
 const STATIC = true;
@@ -74,13 +128,77 @@ $('#f').onsubmit = async (e) => {
   $('#b').disabled = false;
 };
 
+// 레시피오식 첫 화면: 배너 · 카테고리 · 주제별 가로 줄
+const has = (r, ...words) => [...r.tags, r.title, ...r.ingredients].some((t) => words.some((w) => t.includes(w)));
+const CATS = [
+  ['QUICK', '⚡', '초스피드', (r) => r.cook_minutes && r.cook_minutes <= 15 || has(r, '초스피드')],
+  ['LATE', '🌙', '야식', (r) => has(r, '야식', '술안주')],
+  ['DIET', '🥗', '다이어트', (r) => has(r, '다이어트', '샐러드') || (r.kcal && r.kcal <= 450)],
+  ['SOLO', '🍚', '혼밥', (r) => has(r, '혼밥', '덮밥') || r.servings === 1],
+  ['KIDS', '🧒', '아이와 함께', (r) => has(r, '아이')],
+  ['HANGOVER', '🍲', '해장', (r) => has(r, '해장', '국물', '탕', '찌개')],
+  ['PARTY', '🎉', '기념일', (r) => has(r, '기념일', '홈파티')],
+  ['CHEAP', '💰', '만원 이하', (r) => r.total_price && r.total_price <= 10000],
+  ['NOODLE', '🍜', '면요리', (r) => has(r, '면', '국수', '파스타', '우동', '라면', '소바')],
+  ['SIDE', '🥢', '밑반찬', (r) => has(r, '밑반찬', '반찬', '무침', '조림')],
+];
+const priceBadge = (p) => !p ? '' : p <= 3000 ? '3천원 이하' : p <= 5000 ? '5천원 이하' : p <= 10000 ? '만원 이하' : '';
+const card = (r, badge = '') => `<a class="rc" href="#/r/${r.id}">
+  <div class="th"><img src="${esc(r.thumbnail)}" alt="" loading="lazy">${badge ? `<span class="badge">${esc(badge)}</span>` : ''}</div>
+  <b>${esc(r.title)}</b><small>${esc(r.channel)}</small><small class="vw">▶ ${views(r.views)}</small></a>`;
+const row = (title, items, badge, more) => !items.length ? '' : `<section class="sec"><div class="sh"><h3>${title}</h3>${more ? `<a href="${more}">더보기 ›</a>` : ''}</div>
+  <div class="hs">${items.map((r) => card(r, badge?.(r))).join('')}</div></section>`;
+const BANNERS = [
+  ['#유튜브 레시피', '인기 요리 영상, 레시피로 한눈에', '재료 · 순서 · 영상 시점까지 정리했어요', 'linear-gradient(120deg,#ff5a1f,#ff9a3c)', '#/c/QUICK', '🍳'],
+  ['#냉장고 파먹기', '있는 재료로 뭐 해 먹지?', '재료만 넣으면 딱 맞는 레시피를 골라 드려요', 'linear-gradient(120deg,#12b886,#63e6be)', '#/find', '🧊'],
+  ['#가성비 장보기', '만원으로 차리는 한 끼', '인분을 바꾸면 재료 가격도 자동 계산', 'linear-gradient(120deg,#4263eb,#748ffc)', '#/c/CHEAP', '🛒'],
+];
+// 달마다 바뀌는 제철 재료 기획전
+const SEASON_MAP = { 1:'굴 꼬막 시금치 무 귤', 2:'달래 냉이 굴 딸기 시금치', 3:'냉이 달래 쑥 주꾸미 봄동', 4:'두릅 미나리 주꾸미 바지락 쑥', 5:'마늘쫑 완두콩 멸치 참외 감자', 6:'감자 오이 애호박 매실 옥수수', 7:'옥수수 가지 토마토 수박 오이', 8:'가지 복숭아 전복 고추 옥수수', 9:'전어 대하 버섯 고구마 배', 10:'무 버섯 고구마 대하 사과', 11:'배추 무 굴 고등어 사과', 12:'굴 꼬막 배추 무 귤' };
+const SEASON = { month: new Date().getMonth() + 1, items: SEASON_MAP[new Date().getMonth() + 1].split(' ') };
+let bannerTimer;
 async function home() {
   const list = await (await fetch(LIST_URL)).json();
-  $('#view').innerHTML = list.length ? `<div class="grid">${list.map((r) => `
-    <a class="card" href="#/r/${r.id}"><img src="${esc(r.thumbnail)}" alt=""><div>
-      <b>${esc(r.title)}</b><small>${esc(r.channel)} · ${views(r.views)}${r.cook_minutes ? ' · ' + r.cook_minutes + '분' : ''}</small>
-    </div></a>`).join('')}</div>` : '<p class="msg">아직 레시피가 없어요. 위에 유튜브 링크를 넣어 보세요.</p>';
+  if (!list.length) { $('#view').innerHTML = '<p class="msg">아직 레시피가 없어요.</p>'; return; }
+  const byViews = [...list].sort((a, b) => (b.views || 0) - (a.views || 0));
+  const pick = (key) => list.filter(CATS.find((c) => c[0] === key)[3]);
+  $('#view').innerHTML = `
+    <div class="banner">${BANNERS.map(([tag, h, p, c, href, emo], i) => `<a class="slide${i ? '' : ' on'}" href="${href}" style="background:${c}" data-emoji="${emo}">
+      <span>${tag}</span><b>${h}</b><small>${p}</small></a>`).join('')}<div class="dots">${BANNERS.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div></div>
+    <div class="cats">${CATS.map(([k, ic, name]) => `<a href="#/c/${k}"><span>${ic}</span>${name}</a>`).join('')}</div>
+    ${row('🔥 주간 인기 레시피', byViews.slice(0, 12))}
+    ${row(`🍂 ${SEASON.month}월 제철, ${SEASON.items.slice(0, 3).join(' · ')} 레시피 어때요?`, list.filter((r) => has(r, ...SEASON.items)))}
+    ${row('✅ 유튜브 조회수 100만으로 검증된 레시피', byViews.filter((r) => r.views >= 1e6))}
+    ${row('⏱ 시간이 부족해요, 빠른 20분 완성 레시피', list.filter((r) => r.cook_minutes && r.cook_minutes <= 20).sort((a, b) => a.cook_minutes - b.cook_minutes), (r) => r.cook_minutes + '분', '#/c/QUICK')}
+    ${row('💰 만원 이하 가성비 레시피', pick('CHEAP').sort((a, b) => a.total_price - b.total_price), (r) => priceBadge(r.total_price), '#/c/CHEAP')}
+    ${row('🍜 오늘은 면 요리 어때요?', pick('NOODLE'), null, '#/c/NOODLE')}
+    ${row('🌙 출출한 밤, 야식 레시피', pick('LATE'), null, '#/c/LATE')}
+    ${row('🥗 가볍게 먹는 다이어트 레시피', pick('DIET'), (r) => r.kcal ? r.kcal + 'kcal' : '', '#/c/DIET')}
+    ${row('🆕 새로 올라온 레시피', list.slice(0, 12))}`;
+  clearInterval(bannerTimer);
+  let n = 0;
+  bannerTimer = setInterval(() => {
+    const s = document.querySelectorAll('.banner .slide'), d = document.querySelectorAll('.banner .dots i');
+    if (!s.length) return clearInterval(bannerTimer);
+    s[n].classList.remove('on'); d[n].classList.remove('on'); n = (n + 1) % s.length; s[n].classList.add('on'); d[n].classList.add('on');
+  }, 4000);
 }
+
+async function grid(title, items, badge) {
+  $('#view').innerHTML = `<h2 style="margin:4px 0 14px">${title} <small style="color:var(--sub);font-size:14px">${items.length}개</small></h2>
+    ${items.length ? `<div class="grid2">${items.map((r) => card(r, badge?.(r))).join('')}</div>` : '<p class="msg">아직 이 분류에 맞는 레시피가 없어요.</p>'}`;
+}
+async function category(key) {
+  const c = CATS.find((x) => x[0] === key) || CATS[0];
+  const list = await (await fetch(LIST_URL)).json();
+  grid(`${c[1]} ${c[2]}`, list.filter(c[3]), key === 'CHEAP' ? (r) => priceBadge(r.total_price) : key === 'QUICK' ? (r) => r.cook_minutes + '분' : null);
+}
+async function search(q) {
+  const list = await (await fetch(LIST_URL)).json();
+  const t = q.replace(/\s/g, '');
+  grid(`🔍 '${esc(q)}' 검색 결과`, list.filter((r) => [r.title, r.channel, ...r.ingredients, ...r.tags].some((x) => (x || '').replace(/\s/g, '').includes(t))));
+}
+$('#sf2').onsubmit = (e) => { e.preventDefault(); const q = $('#q').value.trim(); if (q) location.hash = '#/s/' + encodeURIComponent(q); };
 
 const BASIC = '소금 후추 설탕 간장 진간장 국간장 식용유 참기름 들기름 다진마늘 마늘 고춧가루 고추장 된장 식초 물 깨 통깨 미림 맛술 올리고당 물엿 굴소스'.split(' ');
 const norm = (s) => s.replace(/\(.*?\)/g, '').replace(/\s/g, '');
@@ -102,7 +220,7 @@ async function find() {
     }).filter((r) => r.have.some((n) => terms.some((t) => norm(n).includes(t) || t.includes(norm(n)))))
       .sort((a, b) => b.score - a.score || a.miss.length - b.miss.length);
     $('#fr').innerHTML = ranked.length ? ranked.map((r) => `
-      <a class="box card" href="#/r/${r.id}" style="display:flex;gap:12px;padding:12px">
+      <a class="box card" style="gap:12px" href="#/r/${r.id}" style="display:flex;gap:12px;padding:12px">
         <img src="${esc(r.thumbnail)}" alt="" style="width:120px;border-radius:8px;flex:none">
         <div style="padding:0"><b>${esc(r.title)}</b>
           <small class="have">있는 재료 ${r.have.length}/${r.ingredients.length} (${Math.round(r.score * 100)}%)</small>
@@ -171,10 +289,12 @@ async function detail(id) {
 }
 
 const route = () => {
-  const m = location.hash.match(/^#\/r\/([\w-]{11})/), isFind = location.hash === '#/find', isSet = location.hash === '#/settings';
-  $('#n-home').className = !m && !isFind && !isSet ? 'on' : ''; $('#n-set').className = isSet ? 'on' : ''; $('#n-find').className = isFind ? 'on' : '';
-  $('#f').hidden = STATIC || isFind || isSet; $('#n-set').hidden = STATIC;
-  (m ? detail(m[1]) : isFind ? find() : isSet ? settings() : home()).catch((e) => say(e.message, true)); scrollTo(0, 0);
+  const h = location.hash, m = h.match(/^#\/r\/([\w-]{11})/), c = h.match(/^#\/c\/(\w+)/), s = h.match(/^#\/s\/(.+)/);
+  const isFind = h === '#/find', isSet = h === '#/settings', isHome = !m && !c && !s && !isFind && !isSet;
+  document.querySelectorAll('[data-nav]').forEach((a) => a.classList.toggle('on', a.dataset.nav === (isFind ? 'find' : isSet ? 'set' : isHome ? 'home' : '')));
+  $('#f').hidden = STATIC || !isHome; $('#n-set').hidden = STATIC;
+  $('#view').className = m ? 'narrow' : '';
+  (m ? detail(m[1]) : c ? category(c[1]) : s ? search(decodeURIComponent(s[1])) : isFind ? find() : isSet ? settings() : home()).catch((e) => say(e.message, true)); scrollTo(0, 0);
 };
 addEventListener('hashchange', route); route();
 </script>
