@@ -1,0 +1,38 @@
+# 한입레시피
+
+> 유튜브 인기 요리 영상을 재료·양·추정 가격·단계별 영상 시점·팁·영양까지 정리한 레시피 모음. 냉장고 재료로 찾고 장보기까지 한 번에.
+
+한입레시피는 유튜브 요리 영상을 레시피로 정리한 한국어 사이트입니다. 레시피마다 재료와 양, 마트 기준 추정 가격, 단계별 영상 시점, 요리 팁, 1인분 추정 영양성분, 원작 유튜브 채널 출처가 있습니다. 가격과 영양성분은 추정값입니다. 재료의 쿠팡 링크는 쿠팡 파트너스 제휴 링크입니다.
+
+- 홈: https://kawaijin74-sudo.github.io/hanip-recipe/
+- 전체 레시피: https://kawaijin74-sudo.github.io/hanip-recipe/recipes/
+- 모음글: https://kawaijin74-sudo.github.io/hanip-recipe/collections/
+- 사이트맵: https://kawaijin74-sudo.github.io/hanip-recipe/sitemap.xml
+
+## 레시피
+
+- [기사식당 스타일 제육볶음 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/rLEyOHvGb1Y/): 4mm 두께 목전지살을 설탕·마늘 기름에 볶아 풍미를 올리고, 고추장 양념과 야채를 더해 완성하는 제육볶음입니다. (15분 · 3인분 · 약 16,800원 · 650kcal · 원작 추추의 한끼식사)
+- [들깨버섯탕 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/udcQAqYhOmA/): 표고·느타리·팽이버섯을 볶아 두부, 호두, 들깨가루를 갈아 만든 소스로 걸쭉하게 끓인 설탕 없는 건강 국입니다. 깻잎과 들기름으로 향을 더해 마무리합니다. (20분 · 2인분 · 약 13,650원 · 280kcal · 원작 영건쿡 l 설탕 없는 집밥 연구소)
+- [얼큰 두부조림 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/Eino3yP-Wk0/): 얇게 썬 두부를 새우젓, 고춧가루, 간장 양념에 자작하게 졸인 매콤한 밥도둑 반찬입니다. 마지막에 들기름을 넣어 고소함을 더합니다. (20분 · 2인분 · 약 5,150원 · 190kcal · 원작 백종원 PAIK JONG WON)
+- [K-알리오올리오 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/ohihzV6Z85k/): 마늘을 듬뿍 넣고 소고기 다시다나 소금으로 간을 맞춰 만드는 한국식 알리오올리오입니다. 마늘과 올리브유만 있으면 되는 간단한 파스타예요. (20분 · 1인분 · 약 4,050원 · 900kcal · 원작 백종원 PAIK JONG WON)
+- [지코바 치킨 (치밥) 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/fAZ7d33OR_E/): 우유에 재운 순살 닭다리살을 구워 매콤달콤한 양념에 센불로 졸이고, 토치로 불맛을 낸 지코바 스타일 치킨입니다. 밥 위에 올려 치밥으로 먹습니다. (45분 · 2인분 · 약 17,900원 · 780kcal · 원작 1분요리 뚝딱이형)
+- [고깃집 된장찌개 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/J4vEoFVcguw/): 된장과 쌈장, 고추장을 기름에 볶아 깊은 맛을 내는 1분 초간단 된장찌개입니다. 멸치 다시다와 차돌박이나 대패삼겹살을 더하면 고깃집 맛에 가까워집니다. (10분 · 2인분 · 약 8,950원 · 220kcal · 원작 1분요리 뚝딱이형)
+- [닭볶음탕 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/pNtwZuhYQeg/): 닭 한 마리에 감자, 양파, 대파를 넣고 간장 밑간 후 양념을 풀어 15분 만에 끓여내는 정호영식 닭볶음탕입니다. 만 원 이내로 4인 가족이 푸짐하게 먹을 수 있습니다. (15분 · 4인분 · 약 15,300원 · 620kcal · 원작 정호영의 오늘도 요리 Kitchen Caden)
+- [뒷다리살 감자탕 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/6hLnQ5c03L8/): 돼지 등뼈 대신 뒷다리살을 된장 푼 물에 1시간 20분 푹 끓인 뒤 감자와 양념, 들깻가루를 넣어 완성하는 진한 감자탕입니다. 간장 베이스 겨자소스를 곁들여 먹습니다. (120분 · 3인분 · 약 22,100원 · 520kcal · 원작 백종원 PAIK JONG WON)
+- [마라크림 파스타 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/zc0IrP3AEMw/): 우삼겹(또는 차돌박이)과 채소, 새우를 볶고 우유·생크림·시판 마라소스로 크림소스를 만들어 얇은 파스타와 버무린 마라크림 파스타입니다. (20분 · 1인분 · 약 12,150원 · 850kcal · 원작 1분요리 뚝딱이형)
+- [차돌 된장 술밥 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/klFhbUssB60/): 차돌박이와 채소를 넣고 자작하게 끓인 된장찌개에 밥을 넣어 뚝배기에서 바글바글 끓여 먹는 술밥입니다. 밥반찬으로도 술안주로도 좋습니다. (25분 · 2인분 · 약 16,600원 · 650kcal · 원작 정호영의 오늘도 요리 Kitchen Caden)
+- [두부그라탕 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/23mDYISNuW4/): 전자레인지로 5분이면 완성되는 단백질 가득한 다이어트 두부 그라탕이다. 두부와 계란에 채소, 소스, 치즈를 더해 만든다. (10분 · 1인분 · 약 4,350원 · 420kcal · 원작 쿠킹조아 Cooking JoA)
+- [다이어트 오꼬노미야끼 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/f3SrYc1v0zc/): 양배추를 듬뿍 넣어 만든 저탄수화물 오꼬노미야끼입니다. 익힌 양배추와 생양배추를 함께 먹는 구성이라 포만감이 좋습니다. (약 5,500원 · 250kcal · 원작 다이어트 요리하는 호수 ᄋ u ᄋ)
+- [상추샐러드 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/recipes/jTBhQS4FyNI/): 불을 쓰지 않고 상추, 레몬즙에 절인 오이, 방울토마토를 생들기름 마늘 드레싱에 버무려 먹는 간단한 샐러드입니다. (30분 · 2인분 · 약 9,650원 · 130kcal · 원작 영건쿡 l 설탕 없는 집밥 연구소)
+
+## 모음글
+
+- [만원 이하 가성비 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/collections/under-10000-won/): 재료비 합계(마트 가격 기준 추정)가 1만 원 이하인 레시피 6개를 싼 순서로 모았어요. 가장 저렴한 K-알리오올리오는 재료를 모두 사도 약 4,050원이에요. 가격은 대략값이라 사는 곳과 시기에 따라 달라질 수 있어요.
+- [20분 이내 빠른 요리](https://kawaijin74-sudo.github.io/hanip-recipe/collections/quick-20-minutes/): 조리 시간이 20분 이내인 레시피 8개를 빠른 순서로 모았어요. 가장 빠른 고깃집 된장찌개는 약 10분이면 완성돼요. 조리 시간은 영상 내용을 바탕으로 정리한 값이에요.
+- [혼밥 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/collections/honbap/): 혼밥 태그가 붙었거나 1인분 기준인 레시피 7개예요. 재료비를 인분으로 나눈 1인분 값이 싼 순서로 정렬했고, 가장 저렴한 얼큰 두부조림은 1인분 약 2,575원이에요. 인분을 바꾸면 앱에서 재료 양과 가격이 함께 바뀌어요.
+- [술안주 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/collections/anju/): 술안주 태그가 붙은 레시피 6개를 유튜브 조회수 순으로 모았어요. 원작 영상 조회수가 가장 많은 레시피는 기사식당 스타일 제육볶음(추추의 한끼식사, 조회수 15,545,733회)이에요.
+- [다이어트 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/collections/diet/): 다이어트·샐러드 태그가 있거나 1인분 추정 열량이 450kcal 이하인 레시피 6개를 열량이 낮은 순서로 모았어요. 가장 가벼운 상추샐러드는 1인분 약 130kcal예요. 열량은 재료로 계산한 추정값이에요.
+- [해장·국물 요리](https://kawaijin74-sudo.github.io/hanip-recipe/collections/haejang-soup/): 해장·국물요리 태그가 붙었거나 이름이 찌개·탕인 레시피 5개를 조회수 순으로 모았어요. 조리 시간은 10분부터 120분까지 다양해요.
+- [야식 레시피](https://kawaijin74-sudo.github.io/hanip-recipe/collections/late-night/): 야식 태그가 붙은 레시피 3개를 조회수 순으로 모았어요. 1인분 추정 열량은 780~900kcal예요.
+- [두부 요리](https://kawaijin74-sudo.github.io/hanip-recipe/collections/tofu/): 재료에 두부가 들어가는 레시피 5개를 조회수 순으로 모았어요. 남은 두부 한 모로 무엇을 할지 고를 때 참고하세요.
+- [버섯 요리](https://kawaijin74-sudo.github.io/hanip-recipe/collections/mushroom/): 재료에 버섯이 들어가는 레시피 3개를 조회수 순으로 모았어요.
