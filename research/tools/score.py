@@ -17,7 +17,7 @@
 """
 import csv, math, os, re, statistics, sys
 from collections import defaultdict
-from datetime import date
+from datetime import date, timedelta
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -65,12 +65,16 @@ def season_factor(peak):
         f = 1.15
     elif 6 < wk <= 10:
         f = 1.10
-    elif wk > 10:
+    elif 10 < wk <= 20:
         f = 0.90
+    elif wk > 20:
+        f = 0.75   # 다음 정점이 5개월 넘게 남음(여름 메뉴 등)
     elif wk >= -2:
-        f = 1.0
+        f = 1.0    # 막 정점을 지남
+    elif wk >= -26:
+        f = 0.85   # 정점이 지난 지 반년 이내
     else:
-        f = 0.85
+        f = 0.60   # 반년 넘게 지난 유행(재유행 근거 없음)
     return f, round(wk, 1)
 
 
@@ -146,7 +150,9 @@ def main():
                      "추석감점": pen, "근거세기합": strength, "출처수": len(srcs),
                      "자동완성수": len(aq), "점수": round(score, 3)})
 
-    rows.sort(key=lambda r: -r["점수"])
+    # 같은 점수면: 근거 세기 합이 큰 것 → 정점이 '4주 뒤'에 가까운 것
+    rows.sort(key=lambda r: (-r["점수"], -r["근거세기합"],
+                             abs((r["정점까지_주"] if r["정점까지_주"] is not None else 99) - 4)))
     new = [r for r in rows if not r["기존중복"] and r["설시즌"] != "1"]
     dup = [r for r in rows if r["기존중복"]]
     scores = [r["점수"] for r in new]
@@ -157,8 +163,49 @@ def main():
     def tier(s):
         return "A" if s >= q[2] else ("B" if s >= q[1] else "C")
 
+    # ---- 만들 시기 배치 ----
+    # 정점 4주 전(A등급은 경쟁이 세서 5주 전)까지 올린다. 상위 50개를 점수순으로 정원 안에 넣고,
+    # 정원이 차면 더 이른 시기로 당긴다(일찍 올리는 건 손해가 없음). 정점보다 늦게 미루지는 않으며,
+    # 앞 시기가 모두 차면 제 시기 정원을 넘긴다. 상시 메뉴는 남은 자리를 점수순으로 채우고, 자리가 없으면 예비로 돌린다.
+    BUCKETS = [("이번 주", TODAY + timedelta(days=6), 10), ("다음 주", TODAY + timedelta(days=13), 10),
+               ("11월", date(2026, 11, 30), 12), ("12월", date(2026, 12, 31), 10), ("1월", date(2027, 1, 31), 8)]
+    used = {b[0]: 0 for b in BUCKETS}
+
+    def due(r):
+        pk = r["정점추정"]
+        if not pk or pk == "상시":
+            return None
+        lead = timedelta(days=35 if r["점수"] >= q[2] else 28)
+        d = date.fromisoformat(pk) - lead
+        return d if d > TODAY - timedelta(days=200) else None  # 반년 넘게 지난 유행은 상시 취급
+
+    def target(d):
+        return next((i for i, (b, end, cap) in enumerate(BUCKETS) if d <= end), len(BUCKETS) - 1)
+
+    plan = {}
+    top50 = new[:50]
+    for r in [r for r in top50 if due(r)]:
+        t = target(due(r))
+        for i in range(t, -1, -1):
+            b = BUCKETS[i][0]
+            if used[b] < BUCKETS[i][2]:
+                plan[r["요리명"]] = b; used[b] += 1; break
+        else:  # 정점을 넘기지 않도록, 앞 시기가 다 차면 제 시기에 정원을 넘겨 넣는다
+            b = BUCKETS[t][0]
+            plan[r["요리명"]] = b; used[b] += 1
+    for r in [r for r in top50 if r["요리명"] not in plan]:
+        for b, end, cap in BUCKETS:
+            if used[b] < cap:
+                plan[r["요리명"]] = b; used[b] += 1; break
+        else:
+            plan[r["요리명"]] = "예비·상시"
+    for r in new[50:80]:
+        d = due(r)
+        plan[r["요리명"]] = "예비·" + (BUCKETS[target(d)][0] if d else "상시")
+    print("시기별 배치(상위 50):", used)
+
     cols = ["순위", "요리명", "대표검색어", "질문형검색어1", "질문형검색어2", "질문형검색어3",
-            "카테고리", "근거유형", "출처", "시즌정점추정", "점수", "등급", "중복"]
+            "카테고리", "근거유형", "출처", "시즌정점추정", "만들시기", "점수", "등급", "중복"]
     with open(os.path.join(ROOT, "priority_top80.csv"), "w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, fieldnames=cols)
         w.writeheader()
@@ -166,12 +213,14 @@ def main():
             w.writerow({"순위": i, "요리명": r["요리명"], "대표검색어": r["대표검색어"],
                         "질문형검색어1": r["질문1"], "질문형검색어2": r["질문2"], "질문형검색어3": r["질문3"],
                         "카테고리": r["카테고리"], "근거유형": r["근거유형"], "출처": r["출처"],
-                        "시즌정점추정": r["정점추정"], "점수": r["점수"], "등급": tier(r["점수"]), "중복": ""})
+                        "시즌정점추정": r["정점추정"], "만들시기": plan.get(r["요리명"], ""),
+                        "점수": r["점수"], "등급": tier(r["점수"]), "중복": ""})
         for r in dup:
             w.writerow({"순위": "중복", "요리명": r["요리명"], "대표검색어": r["대표검색어"],
                         "질문형검색어1": r["질문1"], "질문형검색어2": r["질문2"], "질문형검색어3": r["질문3"],
                         "카테고리": r["카테고리"], "근거유형": r["근거유형"], "출처": r["출처"],
-                        "시즌정점추정": r["정점추정"], "점수": r["점수"], "등급": "", "중복": "이미 있음: " + r["기존중복"]})
+                        "시즌정점추정": r["정점추정"], "만들시기": "기존 페이지 보강",
+                        "점수": r["점수"], "등급": "", "중복": "이미 있음: " + r["기존중복"]})
 
     dcols = list(rows[0].keys())
     with open(os.path.join(ROOT, "score_detail.csv"), "w", encoding="utf-8-sig", newline="") as f:
